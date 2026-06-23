@@ -4,214 +4,157 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sinematik Produksiyon Teklif</title>
-<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#080808;color:#e8e8e8;font-family:Inter,sans-serif;min-height:100vh}
-textarea{font-family:inherit}
-.agent-card{background:#0c0c0c;border:1px solid #141414;border-radius:6px;margin-bottom:8px;overflow:hidden;transition:all 0.2s}
-.agent-card.active{background:#0d0d14}
-.agent-header{display:flex;align-items:center;gap:14px;padding:14px 18px;cursor:pointer}
-.agent-result{padding:16px 18px 18px 52px;border-top:1px solid #141414}
-.progress-bar{height:2px;background:#1a1a1a;border-radius:1px;margin-top:12px}
-.progress-fill{height:100%;background:#c9a84c;border-radius:1px;transition:width 0.3s}
-.badge{font-size:9px;letter-spacing:2px;padding:2px 8px;border-radius:3px}
-@keyframes slide{0%{transform:translateX(-100%);width:40%}100%{transform:translateX(300%);width:40%}}
-.anim-bar{height:1px;background:#111;overflow:hidden}
-.anim-inner{height:100%;animation:slide 1.5s infinite}
+.hdr{border-bottom:1px solid #1a1a1a;padding:32px 40px 24px;background:linear-gradient(180deg,#0d0d0d,#080808)}
+.wrap{max-width:960px;margin:0 auto}
+.tag{font-size:11px;letter-spacing:4px;color:#c9a84c;font-weight:600;margin-bottom:6px}
+h1{font-size:28px;font-weight:300;color:#fff;margin:0}
+h1 span{color:#c9a84c;font-weight:600}
+.sub{color:#555;font-size:13px;margin-top:8px}
+.cnt{max-width:960px;margin:0 auto;padding:32px 40px}
+.box{background:#0f0f0f;border:1px solid #1e1e1e;border-radius:8px;padding:24px;margin-bottom:24px}
+.lbl{font-size:11px;letter-spacing:3px;color:#555;display:block;margin-bottom:12px;font-weight:600}
+textarea{width:100%;min-height:140px;background:#080808;border:1px solid #222;border-radius:6px;color:#d0d0d0;font-size:14px;line-height:1.7;padding:14px 16px;resize:vertical;outline:none;box-sizing:border-box;font-family:inherit}
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.info{font-size:12px;color:#444}
+.btn{border:none;border-radius:6px;padding:12px 28px;font-size:13px;font-weight:600;letter-spacing:1px;cursor:pointer}
+.bg{background:#c9a84c;color:#000}
+.bx{background:#1a1a1a;color:#444;cursor:not-allowed}
+.pb{margin-top:12px;height:2px;background:#1a1a1a;border-radius:1px}
+.pf{height:100%;background:#c9a84c;border-radius:1px;transition:width 0.3s}
+.grp{margin-bottom:20px}
+.gl{display:flex;align-items:center;gap:12px;margin-bottom:10px;padding-bottom:8px}
+.gline{flex:1;height:1px}
+.card{border-radius:6px;overflow:hidden;margin-bottom:8px}
+.ch{display:flex;align-items:center;gap:14px;padding:14px 18px;cursor:pointer}
+.cb{padding:16px 18px 18px 52px;border-top:1px solid #141414}
+.cb pre{font-size:12px;line-height:1.8;color:#999;white-space:pre-wrap;word-break:break-word;margin:0}
+.bdg{font-size:9px;letter-spacing:2px;padding:2px 8px;border-radius:3px}
+.ab{height:1px;overflow:hidden}
+.af{height:100%;animation:sl 1.5s infinite}
+.prop{margin-top:32px;background:linear-gradient(135deg,#0d0500,#150a00);border:1px solid rgba(201,168,76,.27);border-radius:8px;padding:28px}
+.ptag{font-size:10px;letter-spacing:4px;color:#c9a84c;margin-bottom:16px;font-weight:700}
+.prop pre{font-size:13px;line-height:1.9;color:#d0b96a;white-space:pre-wrap;word-break:break-word;margin:0}
+@keyframes sl{0%{transform:translateX(-100%);width:40%}100%{transform:translateX(300%);width:40%}}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-var AGENTS = [
-  {id:"orchestrator",level:0,name:"Produksiyon Muduru",role:"Tum sistemi yonetir",color:"#c9a84c",prompt:"Sen bir produksiyon mudurususun. Senaryoyu analiz et ve ozet cik: 1.Genel kapsam 2.Cekim gun sayisi 3.Zorluk seviyesi 4.Kritik notlar 5.Yaklasim onerisi. Turkce yaz."},
-  {id:"brief",level:1,name:"Brief Analiz",role:"Hedef kitle, ton, platform",color:"#7c3aed",prompt:"Sen strateji uzmanisinin. Analiz et: 1.Hedef kitle 2.Ton 3.Ana mesaj 4.Platform onerileri 5.Sure. Turkce yaz."},
-  {id:"concept",level:2,name:"Konsept",role:"Kreatif yon, mood",color:"#d97706",prompt:"Sen kreatif direktorsun. 1.Konsept basligi 2.Gorsel dil 3.Referanslar 4.Muzik 5.Mood kelimeler. Turkce yaz."},
-  {id:"storyboard",level:2,name:"Storyboard",role:"Sahne plani",color:"#d97706",prompt:"Sen storyboard sanatcisissin. Her sahne icin: no, cekim acisi, kamera hareketi, aksiyon, sure. Turkce yaz."},
-  {id:"shotlist",level:2,name:"Shot List",role:"Teknik cekim listesi",color:"#d97706",prompt:"Sen 1. AS sin. Shot listesi olustur: no, tip, lens, kamera, isik, sure, oncelik. Turkce yaz."},
-  {id:"location",level:3,name:"Lokasyon",role:"Mekan, izin, kiralama",color:"#16a34a",prompt:"Sen lokasyon menajerisin. 1.Lokasyonlar 2.Izin gereksinimleri 3.Kiralama TL 4.Alternatifler 5.Toplam butce. Turkce yaz."},
-  {id:"cast",level:3,name:"Cast",role:"Oyuncu, figuran",color:"#16a34a",prompt:"Sen casting direktorsun. 1.Oyuncu listesi 2.Profiller 3.Figuran 4.Ucret TL 5.Toplam. Turkce yaz."},
-  {id:"equipment",level:3,name:"Ekipman",role:"Kamera, isik, ses, drone",color:"#16a34a",prompt:"Sen ekipman koordinatorusun. 1.Kamera 2.Isik 3.Ses 4.Ozel ekipman 5.Kiralama TL 6.Toplam. Turkce yaz."},
-  {id:"crew",level:3,name:"Kadro",role:"Yonetmen, DOP, ekip",color:"#16a34a",prompt:"Sen produksiyon koordinatorusun. 1.Kadro listesi 2.Freelance mi 3.Ucret TL 4.Gun sayisi 5.Toplam. Turkce yaz."},
-  {id:"schedule",level:3,name:"Takvim",role:"Gun bazli plan",color:"#16a34a",prompt:"Sen 1. AS sin. 1.Pre-prod takvim 2.Cekim gunleri 3.Post takvim 4.Toplam sure 5.Riskler. Turkce yaz."},
-  {id:"edit",level:4,name:"Edit",role:"Kurgu, versiyonlar",color:"#2563eb",prompt:"Sen kurgu direktorsun. 1.Edit sureci 2.Yazilim 3.Versiyonlar 4.Revizyon turlari 5.Butce TL. Turkce yaz."},
-  {id:"vfx",level:4,name:"Renk ve VFX",role:"Color grading, efektler",color:"#2563eb",prompt:"Sen post supervizorsun. 1.Color grading 2.VFX 3.Motion graphics 4.Formatlar 5.Butce TL. Turkce yaz."},
-  {id:"sound",level:4,name:"Ses ve Muzik",role:"Muzik, seslendirme",color:"#2563eb",prompt:"Sen ses direktorsun. 1.Muzik stratejisi 2.Ses tasarimi 3.Seslendirme 4.Studio 5.Butce TL. Turkce yaz."},
-  {id:"budget",level:5,name:"Butce",role:"Maliyet tablosu",color:"#dc2626",prompt:"Sen finans direktorsun. Konsolide butce tablosu: A.Pre-prod B.Cekim C.Post D.Genel(%10 buffer). TOPLAM NET MALIYET. TL rakamlarla yaz."},
-  {id:"pricing",level:5,name:"Fiyatlama",role:"Ajans kari, marj",color:"#dc2626",prompt:"Sen is gelistirme direktorsun. Net maliyetten musteri fiyati: 1.Ajans ucreti %15-20 2.Kreatif bedel 3.Risk payi 4.Ekonomik/Standart/Premium paketler 5.Odeme plani. TL yaz."},
-  {id:"proposal",level:5,name:"Teklif Belgesi",role:"Musteri teklifi",color:"#dc2626",prompt:"Sen genel mudursun. Musteri teklifi: 1.PROJE OZETI 2.KREATIF YAKLASIM 3.PRODUKSIYON KAPSAMI 4.TESLIMAT LISTESI 5.PROJE TAKVIMI 6.BUTCE OZETI 7.ODEME KOSULLARI 8.NOTLAR. Profesyonel Turkce yaz."}
+(function(){
+var API="https://api."+"anthropic.com/v1/messages";
+var MDL="claude-sonnet-4-6";
+var AGENTS=[
+{id:"o0",lv:0,nm:"Produksiyon Muduru",rl:"Tum sistemi yonetir",cl:"#c9a84c",pr:"Sen bir produksiyon mudurususun. Senaryoyu analiz et: 1.Genel kapsam 2.Cekim gun sayisi 3.Zorluk 4.Kritik notlar 5.Yaklasim. Turkce yaz."},
+{id:"o1",lv:1,nm:"Brief Analiz",rl:"Hedef kitle, ton, platform",cl:"#7c3aed",pr:"Sen strateji uzmanisinin. 1.Hedef kitle 2.Ton 3.Ana mesaj 4.Platform 5.Sure. Turkce yaz."},
+{id:"o2",lv:2,nm:"Konsept",rl:"Kreatif yon, mood",cl:"#d97706",pr:"Sen kreatif direktorsun. 1.Konsept 2.Gorsel dil 3.Referanslar 4.Muzik 5.Mood. Turkce yaz."},
+{id:"o3",lv:2,nm:"Storyboard",rl:"Sahne plani",cl:"#d97706",pr:"Sen storyboard sanatcisissin. Her sahne icin: no, acis, hareket, aksiyon, sure. Turkce yaz."},
+{id:"o4",lv:2,nm:"Shot List",rl:"Teknik cekim listesi",cl:"#d97706",pr:"Sen asistan yonetmensin. Shotlist: no, tip, lens, kamera, isik, sure, oncelik. Turkce yaz."},
+{id:"o5",lv:3,nm:"Lokasyon",rl:"Mekan, izin, kiralama",cl:"#16a34a",pr:"Sen lokasyon menajerisin. 1.Lokasyonlar 2.Izinler 3.Kira TL 4.Alternatifler 5.Toplam. Turkce yaz."},
+{id:"o6",lv:3,nm:"Cast",rl:"Oyuncu, figuran",cl:"#16a34a",pr:"Sen casting direktorsun. 1.Oyuncular 2.Profiller 3.Figuran 4.Ucret TL 5.Toplam. Turkce yaz."},
+{id:"o7",lv:3,nm:"Ekipman",rl:"Kamera, isik, ses, drone",cl:"#16a34a",pr:"Sen ekipman koordinatorusun. 1.Kamera 2.Isik 3.Ses 4.Ozel 5.Kira TL 6.Toplam. Turkce yaz."},
+{id:"o8",lv:3,nm:"Kadro",rl:"Yonetmen, DOP, ekip",cl:"#16a34a",pr:"Sen produksiyon koordinatorusun. 1.Kadro 2.Freelance mi 3.Ucret TL 4.Gun 5.Toplam. Turkce yaz."},
+{id:"o9",lv:3,nm:"Takvim",rl:"Gun bazli plan",cl:"#16a34a",pr:"Sen asistan yonetmensin. 1.Pre-prod 2.Cekim gunleri 3.Post 4.Sure 5.Riskler. Turkce yaz."},
+{id:"p1",lv:4,nm:"Edit",rl:"Kurgu, versiyonlar",cl:"#2563eb",pr:"Sen kurgu direktorsun. 1.Edit sureci 2.Yazilim 3.Versiyonlar 4.Revizyon 5.Butce TL. Turkce yaz."},
+{id:"p2",lv:4,nm:"Renk ve VFX",rl:"Color, efektler",cl:"#2563eb",pr:"Sen post supervizorsun. 1.Color grading 2.VFX 3.Motion graphics 4.Formatlar 5.Butce TL. Turkce yaz."},
+{id:"p3",lv:4,nm:"Ses ve Muzik",rl:"Muzik, seslendirme",cl:"#2563eb",pr:"Sen ses direktorsun. 1.Muzik 2.Ses tasarimi 3.Seslendirme 4.Studio 5.Butce TL. Turkce yaz."},
+{id:"q1",lv:5,nm:"Butce",rl:"Maliyet tablosu",cl:"#dc2626",pr:"Sen finans direktorsun. Konsolide butce: A.Pre-prod B.Cekim C.Post D.Genel. TOPLAM NET MALIYET TL. Gercekci rakamlarla yaz."},
+{id:"q2",lv:5,nm:"Fiyatlama",rl:"Ajans kari, marj",cl:"#dc2626",pr:"Sen is gelistirme direktorsun. Net maliyetten fiyat: 1.Ajans yuzde 15-20 2.Kreatif 3.Risk 4.Paketler Ekonomik Standart Premium 5.Odeme plani. TL yaz."},
+{id:"q3",lv:5,nm:"Teklif Belgesi",rl:"Musteri teklifi",cl:"#dc2626",pr:"Sen genel mudursun. Musteri teklifi: 1.PROJE OZETI 2.KREATIF 3.KAPSAM 4.TESLIMAT 5.TAKVIM 6.BUTCE 7.ODEME 8.NOTLAR. Profesyonel Turkce yaz."}
 ];
+var LC={0:"#c9a84c",1:"#7c3aed",2:"#d97706",3:"#16a34a",4:"#2563eb",5:"#dc2626"};
+var LN={0:"ORKESTRATOR",1:"STRATEJI",2:"KREATIF",3:"PRODUKSIYON",4:"POST-PRODUKSIYON",5:"MALIYET VE TEKLIF"};
+var st={sc:"",rs:{},run:false,act:null,exp:null,prg:0};
+function e(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function ss(u){Object.assign(st,u);rd();}
+async function ca(ag,ctx){
+  ss({act:ag.id});
+  try{
+    var msg="Senaryo:
+"+st.sc+(ctx?"
 
-var state = {scenario:"", results:{}, running:false, active:null, expanded:null, progress:0};
-
-function setState(updates) {
-  Object.assign(state, updates);
-  render();
+Onceki:
+"+ctx:"");
+    var r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:MDL,max_tokens:1000,system:ag.pr,messages:[{role:"user",content:msg}]})});
+    var d=await r.json();
+    var t=(d.content||[]).map(function(c){return c.text||"";}).join("")||"Yanit alinamadi.";
+    var nr=Object.assign({},st.rs);nr[ag.id]=t;ss({rs:nr});return t;
+  }catch(ex){var err="Hata: "+ex.message;var nr=Object.assign({},st.rs);nr[ag.id]=err;ss({rs:nr});return err;}
 }
+async function runAll(){
+  if(!st.sc.trim())return;
+  ss({run:true,rs:{},prg:0});
+  var ctx="";
+  for(var i=0;i<AGENTS.length;i++){
+    var a=AGENTS[i];var r=await ca(a,ctx);
+    ctx+="
 
-async function callAgent(agent, ctx) {
-  setState({active: agent.id});
-  try {
-    var userContent = "Senaryo:" + String.fromCharCode(10) + state.scenario;
-    if (ctx) userContent += String.fromCharCode(10) + String.fromCharCode(10) + "Onceki analizler:" + String.fromCharCode(10) + ctx;
-    var resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        system: agent.prompt,
-        messages: [{role: "user", content: userContent}]
-      })
+["+a.nm+"]:
+"+r;
+    ss({prg:Math.round((i+1)/AGENTS.length*100)});
+  }
+  ss({act:null,run:false});
+}
+function tg(id){ss({exp:st.exp===id?null:id});}
+function rd(){
+  var grp={};
+  AGENTS.forEach(function(a){if(!grp[a.lv])grp[a.lv]=[];grp[a.lv].push(a);});
+  var done=Object.keys(st.rs).length;
+  var h='<div class="hdr"><div class="wrap">';
+  h+='<div class="tag">REKLAM PRODUKSIYON SISTEMI</div>';
+  h+='<h1>Sinematik Produksiyon <span>Fiyat Ajani</span></h1>';
+  h+='<p class="sub">16 uzman ajan &mdash; Senaryo analizi &mdash; Profesyonel maliyet teklifi</p>';
+  h+='</div></div><div class="cnt">';
+  h+='<div class="box"><label class="lbl">MUSTERI SENARYOSU</label>';
+  h+='<textarea id="sc" placeholder="Musteri senaryosunu buraya yapistirin...">'+e(st.sc)+'</textarea>';
+  h+='<div class="row"><span class="info">'+(done>0?done+"/"+AGENTS.length+" ajan tamamlandi":"")+'</span>';
+  h+='<button class="btn '+(st.run?"bx":"bg")+'" onclick="go()">'+(st.run?"Calisiyor... %"+st.prg:"TUM AJANLARI CALISTIR")+'</button></div>';
+  if(st.run)h+='<div class="pb"><div class="pf" style="width:'+st.prg+'%"></div></div>';
+  h+='</div>';
+  Object.keys(grp).sort(function(a,b){return a-b;}).forEach(function(lv){
+    var agents=grp[lv];var lc=LC[lv];
+    h+='<div class="grp"><div class="gl" style="border-bottom:1px solid '+lc+'22">';
+    h+='<span style="font-size:10px;letter-spacing:3px;color:'+lc+';font-weight:700">SEVIYE '+lv+'</span>';
+    h+='<span style="font-size:11px;color:#333;letter-spacing:2px">'+LN[lv]+'</span>';
+    h+='<div class="gline" style="background:'+lc+'11"></div></div>';
+    agents.forEach(function(a){
+      var iA=st.act===a.id,iD=!!st.rs[a.id],iE=st.exp===a.id;
+      h+='<div class="card" style="background:'+(iA?"#0d0d14":"#0c0c0c")+';border:1px solid '+(iA?a.cl+"44":iD?"#1e1e1e":"#141414")+'">';
+      h+='<div class="ch" onclick="tg(''+a.id+'')">';
+      h+='<span style="font-size:14px;color:'+(iA?a.cl:iD?a.cl+"99":"#2a2a2a")+';width:20px;text-align:center">&#9679;</span>';
+      h+='<div style="flex:1"><div style="display:flex;align-items:center;gap:8px">';
+      h+='<span style="font-size:13px;font-weight:600;color:'+(iA?"#fff":iD?"#ccc":"#444")+'">'+a.nm+'</span>';
+      if(iA)h+='<span class="bdg" style="color:'+a.cl+';background:'+a.cl+'15">CALISIYOR</span>';
+      if(iD&&!iA)h+='<span class="bdg" style="color:#16a34a;background:#16a34a15">TAMAMLANDI</span>';
+      h+='</div><div style="font-size:11px;color:#333;margin-top:2px">'+a.rl+'</div></div>';
+      if(iD)h+='<span style="color:#333;font-size:12px">'+(iE?"&#9650;":"&#9660;")+'</span>';
+      h+='</div>';
+      if(iA)h+='<div class="ab"><div class="af" style="background:linear-gradient(90deg,transparent,'+a.cl+',transparent)"></div></div>';
+      if(iD&&iE)h+='<div class="cb"><pre>'+e(st.rs[a.id])+'</pre></div>';
+      h+='</div>';
     });
-    var data = await resp.json();
-    var text = (data.content || []).map(function(c){return c.text||"";}).join("") || "Yanit alinamadi.";
-    var newResults = Object.assign({}, state.results);
-    newResults[agent.id] = text;
-    setState({results: newResults});
-    return text;
-  } catch(e) {
-    var err = "Hata: " + e.message;
-    var nr = Object.assign({}, state.results);
-    nr[agent.id] = err;
-    setState({results: nr});
-    return err;
-  }
-}
-
-async function runAll() {
-  if (!state.scenario.trim()) return;
-  setState({running:true, results:{}, progress:0});
-  var ctx = "";
-  for (var i = 0; i < AGENTS.length; i++) {
-    var a = AGENTS[i];
-    var r = await callAgent(a, ctx);
-    ctx += String.fromCharCode(10) + String.fromCharCode(10) + "[" + a.name + "]:" + String.fromCharCode(10) + r;
-    setState({progress: Math.round((i+1)/AGENTS.length*100)});
-  }
-  setState({active:null, running:false});
-}
-
-var LVL_COLOR = {0:"#c9a84c",1:"#7c3aed",2:"#d97706",3:"#16a34a",4:"#2563eb",5:"#dc2626"};
-var LVL_NAME = {0:"ORKESTRATOR",1:"STRATEJI",2:"KREATIF",3:"PRODUKSIYON",4:"POST",5:"TEKLIF"};
-
-function render() {
-  var app = document.getElementById("app");
-
-  var grouped = {};
-  AGENTS.forEach(function(a){
-    var k = a.level;
-    if (!grouped[k]) grouped[k] = [];
-    grouped[k].push(a);
+    h+='</div>';
   });
-
-  var doneCount = Object.keys(state.results).length;
-
-  var html = '<div style="min-height:100vh;background:#080808;color:#e8e8e8">';
-
-  // Header
-  html += '<div style="border-bottom:1px solid #1a1a1a;padding:32px 40px 24px;background:linear-gradient(180deg,#0d0d0d,#080808)">';
-  html += '<div style="max-width:960px;margin:0 auto">';
-  html += '<div style="font-size:11px;letter-spacing:4px;color:#c9a84c;font-weight:600;margin-bottom:6px">REKLAM PRODUKSIYON SISTEMI</div>';
-  html += '<h1 style="font-size:28px;font-weight:300;color:#fff;margin:0">Sinematik Produksiyon <span style="color:#c9a84c;font-weight:600">Fiyat Ajani</span></h1>';
-  html += '<p style="color:#555;font-size:13px;margin-top:8px">16 uzman ajan — Senaryo analizi — Profesyonel maliyet teklifi</p>';
-  html += '</div></div>';
-
-  // Content
-  html += '<div style="max-width:960px;margin:0 auto;padding:32px 40px">';
-
-  // Scenario input
-  html += '<div style="background:#0f0f0f;border:1px solid #1e1e1e;border-radius:8px;padding:24px;margin-bottom:24px">';
-  html += '<label style="font-size:11px;letter-spacing:3px;color:#555;display:block;margin-bottom:12px;font-weight:600">MUSTERI SENARYOSU</label>';
-  html += '<textarea id="scenario-input" placeholder="Musteri senaryosunu buraya yapistirin..." style="width:100%;min-height:140px;background:#080808;border:1px solid #222;border-radius:6px;color:#d0d0d0;font-size:14px;line-height:1.7;padding:14px 16px;resize:vertical;outline:none;box-sizing:border-box">' + state.scenario.replace(/</g,'&lt;') + '</textarea>';
-  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">';
-  html += '<div style="font-size:12px;color:#444">' + (doneCount > 0 ? doneCount + "/" + AGENTS.length + " ajan tamamlandi" : "") + '</div>';
-  var btnStyle = 'border:none;border-radius:6px;padding:12px 28px;font-size:13px;font-weight:600;letter-spacing:1px;cursor:' + (state.running ? 'not-allowed' : 'pointer') + ';background:' + (state.running ? '#1a1a1a' : '#c9a84c') + ';color:' + (state.running ? '#444' : '#000');
-  html += '<button onclick="handleRun()" style="' + btnStyle + '">' + (state.running ? 'Calisiyor... %' + state.progress : 'TUM AJANLARI CALISTIR') + '</button>';
-  html += '</div>';
-  if (state.running) {
-    html += '<div class="progress-bar"><div class="progress-fill" style="width:' + state.progress + '%"></div></div>';
+  if(st.rs.q3){
+    h+='<div class="prop"><div class="ptag">MUSTERIYE SUNULACAK TEKLIF</div>';
+    h+='<pre>'+e(st.rs.q3)+'</pre></div>';
   }
-  html += '</div>';
-
-  // Agent groups
-  Object.keys(grouped).forEach(function(lvl) {
-    var agents = grouped[lvl];
-    var lc = LVL_COLOR[lvl];
-    html += '<div style="margin-bottom:20px">';
-    html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid ' + lc + '22">';
-    html += '<span style="font-size:10px;letter-spacing:3px;color:' + lc + ';font-weight:700">SEVIYE ' + lvl + '</span>';
-    html += '<span style="font-size:11px;color:#333;letter-spacing:2px">' + LVL_NAME[lvl] + '</span>';
-    html += '<div style="flex:1;height:1px;background:' + lc + '11"></div>';
-    html += '</div>';
-
-    agents.forEach(function(agent) {
-      var isAct = state.active === agent.id;
-      var isDone = !!state.results[agent.id];
-      var isExp = state.expanded === agent.id;
-      var cardBg = isAct ? '#0d0d14' : '#0c0c0c';
-      var cardBorder = isAct ? agent.color + '44' : isDone ? '#1e1e1e' : '#141414';
-
-      html += '<div class="agent-card' + (isAct ? ' active' : '') + '" style="background:' + cardBg + ';border:1px solid ' + cardBorder + '">';
-      html += '<div class="agent-header" onclick="toggleAgent('' + agent.id + '')">';
-      html += '<span style="font-size:14px;color:' + (isAct ? agent.color : isDone ? agent.color + '99' : '#2a2a2a') + ';width:20px;text-align:center">&#9679;</span>';
-      html += '<div style="flex:1">';
-      html += '<div style="display:flex;align-items:center;gap:8px">';
-      html += '<span style="font-size:13px;font-weight:600;color:' + (isAct ? '#fff' : isDone ? '#ccc' : '#444') + '">' + agent.name + '</span>';
-      if (isAct) html += '<span class="badge" style="color:' + agent.color + ';background:' + agent.color + '15">CALISIYOR</span>';
-      if (isDone && !isAct) html += '<span class="badge" style="color:#16a34a;background:#16a34a15">TAMAMLANDI</span>';
-      html += '</div>';
-      html += '<div style="font-size:11px;color:#333;margin-top:2px">' + agent.role + '</div>';
-      html += '</div>';
-      if (isDone) html += '<span style="color:#333;font-size:12px">' + (isExp ? '▲' : '▼') + '</span>';
-      html += '</div>';
-
-      if (isAct) {
-        html += '<div class="anim-bar"><div class="anim-inner" style="background:linear-gradient(90deg,transparent,' + agent.color + ',transparent)"></div></div>';
-      }
-
-      if (isDone && isExp) {
-        html += '<div class="agent-result"><pre style="font-size:12px;line-height:1.8;color:#999;white-space:pre-wrap;word-break:break-word;margin:0">' + state.results[agent.id].replace(/</g,'&lt;') + '</pre></div>';
-      }
-      html += '</div>';
-    });
-    html += '</div>';
-  });
-
-  // Final proposal
-  if (state.results.proposal) {
-    html += '<div style="margin-top:32px;background:linear-gradient(135deg,#0d0500,#150a00);border:1px solid #c9a84c44;border-radius:8px;padding:28px">';
-    html += '<div style="font-size:10px;letter-spacing:4px;color:#c9a84c;margin-bottom:16px;font-weight:700">MUSTERIYE SUNULACAK TEKLIF</div>';
-    html += '<pre style="font-size:13px;line-height:1.9;color:#d0b96a;white-space:pre-wrap;word-break:break-word;margin:0">' + state.results.proposal.replace(/</g,'&lt;') + '</pre>';
-    html += '</div>';
-  }
-
-  html += '</div></div>';
-  app.innerHTML = html;
-
-  // Rebind textarea
-  var ta = document.getElementById('scenario-input');
-  if (ta) {
-    ta.value = state.scenario;
-    ta.addEventListener('input', function(){ state.scenario = this.value; });
-  }
+  h+='</div>';
+  document.getElementById("app").innerHTML=h;
+  var sc=document.getElementById("sc");
+  if(sc){sc.value=st.sc;sc.oninput=function(){st.sc=this.value;};}
 }
-
-function toggleAgent(id) {
-  setState({expanded: state.expanded === id ? null : id});
-}
-
-function handleRun() {
-  if (state.running) return;
-  var ta = document.getElementById('scenario-input');
-  if (ta) state.scenario = ta.value;
-  if (!state.scenario.trim()) return;
+function go(){
+  if(st.run)return;
+  var sc=document.getElementById("sc");
+  if(sc)st.sc=sc.value;
+  if(!st.sc.trim())return;
   runAll();
 }
-
-render();
+rd();
+})();
 </script>
 </body>
 </html>
