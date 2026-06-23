@@ -44,30 +44,30 @@ textarea{width:100%;min-height:140px;background:#080808;border:1px solid #222;bo
 <div id="app"></div>
 <script>
 (function(){
-var API="https://api."+"anthropic.com/v1/messages";
+var API=String.fromCharCode(104,116,116,112,115,58,47,47,97,112,105,46,97,110,116,104,114,111,112,105,99,46,99,111,109,47,118,49,47,109,101,115,115,97,103,101,115);
 var MDL="claude-sonnet-4-6";
-var AGENTS=[
-{id:"o0",lv:0,nm:"Produksiyon Muduru",rl:"Tum sistemi yonetir",cl:"#c9a84c",pr:"Sen bir produksiyon mudurususun. Senaryoyu analiz et: 1.Genel kapsam 2.Cekim gun sayisi 3.Zorluk 4.Kritik notlar 5.Yaklasim. Turkce yaz."},
-{id:"o1",lv:1,nm:"Brief Analiz",rl:"Hedef kitle, ton, platform",cl:"#7c3aed",pr:"Sen strateji uzmanisinin. 1.Hedef kitle 2.Ton 3.Ana mesaj 4.Platform 5.Sure. Turkce yaz."},
-{id:"o2",lv:2,nm:"Konsept",rl:"Kreatif yon, mood",cl:"#d97706",pr:"Sen kreatif direktorsun. 1.Konsept 2.Gorsel dil 3.Referanslar 4.Muzik 5.Mood. Turkce yaz."},
-{id:"o3",lv:2,nm:"Storyboard",rl:"Sahne plani",cl:"#d97706",pr:"Sen storyboard sanatcisissin. Her sahne icin: no, acis, hareket, aksiyon, sure. Turkce yaz."},
-{id:"o4",lv:2,nm:"Shot List",rl:"Teknik cekim listesi",cl:"#d97706",pr:"Sen asistan yonetmensin. Shotlist: no, tip, lens, kamera, isik, sure, oncelik. Turkce yaz."},
-{id:"o5",lv:3,nm:"Lokasyon",rl:"Mekan, izin, kiralama",cl:"#16a34a",pr:"Sen lokasyon menajerisin. 1.Lokasyonlar 2.Izinler 3.Kira TL 4.Alternatifler 5.Toplam. Turkce yaz."},
-{id:"o6",lv:3,nm:"Cast",rl:"Oyuncu, figuran",cl:"#16a34a",pr:"Sen casting direktorsun. 1.Oyuncular 2.Profiller 3.Figuran 4.Ucret TL 5.Toplam. Turkce yaz."},
-{id:"o7",lv:3,nm:"Ekipman",rl:"Kamera, isik, ses, drone",cl:"#16a34a",pr:"Sen ekipman koordinatorusun. 1.Kamera 2.Isik 3.Ses 4.Ozel 5.Kira TL 6.Toplam. Turkce yaz."},
-{id:"o8",lv:3,nm:"Kadro",rl:"Yonetmen, DOP, ekip",cl:"#16a34a",pr:"Sen produksiyon koordinatorusun. 1.Kadro 2.Freelance mi 3.Ucret TL 4.Gun 5.Toplam. Turkce yaz."},
-{id:"o9",lv:3,nm:"Takvim",rl:"Gun bazli plan",cl:"#16a34a",pr:"Sen asistan yonetmensin. 1.Pre-prod 2.Cekim gunleri 3.Post 4.Sure 5.Riskler. Turkce yaz."},
-{id:"p1",lv:4,nm:"Edit",rl:"Kurgu, versiyonlar",cl:"#2563eb",pr:"Sen kurgu direktorsun. 1.Edit sureci 2.Yazilim 3.Versiyonlar 4.Revizyon 5.Butce TL. Turkce yaz."},
-{id:"p2",lv:4,nm:"Renk ve VFX",rl:"Color, efektler",cl:"#2563eb",pr:"Sen post supervizorsun. 1.Color grading 2.VFX 3.Motion graphics 4.Formatlar 5.Butce TL. Turkce yaz."},
-{id:"p3",lv:4,nm:"Ses ve Muzik",rl:"Muzik, seslendirme",cl:"#2563eb",pr:"Sen ses direktorsun. 1.Muzik 2.Ses tasarimi 3.Seslendirme 4.Studio 5.Butce TL. Turkce yaz."},
-{id:"q1",lv:5,nm:"Butce",rl:"Maliyet tablosu",cl:"#dc2626",pr:"Sen finans direktorsun. Konsolide butce: A.Pre-prod B.Cekim C.Post D.Genel. TOPLAM NET MALIYET TL. Gercekci rakamlarla yaz."},
-{id:"q2",lv:5,nm:"Fiyatlama",rl:"Ajans kari, marj",cl:"#dc2626",pr:"Sen is gelistirme direktorsun. Net maliyetten fiyat: 1.Ajans yuzde 15-20 2.Kreatif 3.Risk 4.Paketler Ekonomik Standart Premium 5.Odeme plani. TL yaz."},
-{id:"q3",lv:5,nm:"Teklif Belgesi",rl:"Musteri teklifi",cl:"#dc2626",pr:"Sen genel mudursun. Musteri teklifi: 1.PROJE OZETI 2.KREATIF 3.KAPSAM 4.TESLIMAT 5.TAKVIM 6.BUTCE 7.ODEME 8.NOTLAR. Profesyonel Turkce yaz."}
+var AG=[
+{id:"o0",lv:0,nm:"Produksiyon Muduru",rl:"Tum sistemi yonetir",cl:"#c9a84c",pr:"Sen bir produksiyon mudurususun. Senaryoyu analiz et: 1.Genel kapsam 2.Cekim gun sayisi 3.Zorluk 4.Kritik notlar 5.Yaklasim onerisi. Turkce yaz."},
+{id:"o1",lv:1,nm:"Brief Analiz",rl:"Hedef kitle, ton, platform",cl:"#7c3aed",pr:"Sen strateji uzmanisinin. 1.Hedef kitle 2.Ton 3.Ana mesaj 4.Platform onerileri 5.Sure. Turkce yaz."},
+{id:"o2",lv:2,nm:"Konsept",rl:"Kreatif yon, mood",cl:"#d97706",pr:"Sen kreatif direktorsun. 1.Konsept basligi 2.Gorsel dil 3.Referanslar 4.Muzik 5.Mood kelimeleri. Turkce yaz."},
+{id:"o3",lv:2,nm:"Storyboard",rl:"Sahne plani",cl:"#d97706",pr:"Sen storyboard sanatcisissin. Her sahne icin: no, cekim acisi, kamera hareketi, ana aksiyon, sure. Turkce yaz."},
+{id:"o4",lv:2,nm:"Shot List",rl:"Teknik cekim listesi",cl:"#d97706",pr:"Sen asistan yonetmensin. Shotlist: no, cekim tipi, lens, kamera sistemi, isik, sure, oncelik. Turkce yaz."},
+{id:"o5",lv:3,nm:"Lokasyon",rl:"Mekan, izin, kiralama",cl:"#16a34a",pr:"Sen lokasyon menajerisin. 1.Lokasyonlar 2.Izin gereksinimleri 3.Kira TL 4.Alternatifler 5.Toplam butce. Turkce yaz."},
+{id:"o6",lv:3,nm:"Cast",rl:"Oyuncu, figuran",cl:"#16a34a",pr:"Sen casting direktorsun. 1.Oyuncu listesi 2.Profiller 3.Figuran sayisi 4.Ucret TL 5.Toplam cast butcesi. Turkce yaz."},
+{id:"o7",lv:3,nm:"Ekipman",rl:"Kamera, isik, ses, drone",cl:"#16a34a",pr:"Sen ekipman koordinatorusun. 1.Kamera 2.Isik 3.Ses 4.Ozel ekipman 5.Gunluk kira TL 6.Toplam. Turkce yaz."},
+{id:"o8",lv:3,nm:"Kadro",rl:"Yonetmen, DOP, ekip",cl:"#16a34a",pr:"Sen produksiyon koordinatorusun. 1.Zorunlu kadro 2.Freelance mi 3.Gunluk ucret TL 4.Gun sayisi 5.Toplam kadro butcesi. Turkce yaz."},
+{id:"o9",lv:3,nm:"Takvim",rl:"Gun bazli plan",cl:"#16a34a",pr:"Sen asistan yonetmensin. 1.Pre-prod takvimi 2.Cekim gunu plani 3.Post takvimi 4.Toplam sure 5.Kritik riskler. Turkce yaz."},
+{id:"p1",lv:4,nm:"Edit",rl:"Kurgu, versiyonlar",cl:"#2563eb",pr:"Sen kurgu direktorsun. 1.Edit sureci ve suresi 2.Yazilim onerisi 3.Teslim versiyonlari 4.Revizyon turlari 5.Edit butcesi TL. Turkce yaz."},
+{id:"p2",lv:4,nm:"Renk ve VFX",rl:"Color grading, efektler",cl:"#2563eb",pr:"Sen post supervizorsun. 1.Color grading 2.VFX ihtiyaclari 3.Motion graphics 4.Format cikislari 5.Toplam butce TL. Turkce yaz."},
+{id:"p3",lv:4,nm:"Ses ve Muzik",rl:"Muzik, seslendirme",cl:"#2563eb",pr:"Sen ses direktorsun. 1.Muzik stratejisi 2.Ses tasarimi 3.Seslendirme 4.Studio ihtiyaci 5.Toplam ses butcesi TL. Turkce yaz."},
+{id:"q1",lv:5,nm:"Butce",rl:"Maliyet tablosu",cl:"#dc2626",pr:"Sen finans direktorsun. Konsolide butce: A.Pre-prod B.Cekim C.Post D.Genel yuzde on buffer. TOPLAM NET MALIYET TL. Gercekci rakamlarla yaz."},
+{id:"q2",lv:5,nm:"Fiyatlama",rl:"Ajans kari, marj",cl:"#dc2626",pr:"Sen is gelistirme direktorsun. Net maliyetten fiyat: 1.Ajans ucreti yuzde 15-20 2.Kreatif bedel 3.Risk payi 4.Ekonomik Standart Premium paket secenekleri 5.Odeme plani. TL yaz."},
+{id:"q3",lv:5,nm:"Teklif Belgesi",rl:"Musteri teklifi",cl:"#dc2626",pr:"Sen genel mudursun. Profesyonel musteri teklifi: 1.PROJE OZETI 2.KREATIF YAKLASIM 3.PRODUKSIYON KAPSAMI 4.TESLIMAT LISTESI 5.PROJE TAKVIMI 6.BUTCE OZETI uc secenek 7.ODEME KOSULLARI 8.NOTLAR. Turkce yaz."}
 ];
 var LC={0:"#c9a84c",1:"#7c3aed",2:"#d97706",3:"#16a34a",4:"#2563eb",5:"#dc2626"};
 var LN={0:"ORKESTRATOR",1:"STRATEJI",2:"KREATIF",3:"PRODUKSIYON",4:"POST-PRODUKSIYON",5:"MALIYET VE TEKLIF"};
 var st={sc:"",rs:{},run:false,act:null,exp:null,prg:0};
-function e(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function ss(u){Object.assign(st,u);rd();}
 async function ca(ag,ctx){
   ss({act:ag.id});
@@ -87,20 +87,20 @@ async function runAll(){
   if(!st.sc.trim())return;
   ss({run:true,rs:{},prg:0});
   var ctx="";
-  for(var i=0;i<AGENTS.length;i++){
-    var a=AGENTS[i];var r=await ca(a,ctx);
+  for(var i=0;i<AG.length;i++){
+    var a=AG[i];var r=await ca(a,ctx);
     ctx+="
 
 ["+a.nm+"]:
 "+r;
-    ss({prg:Math.round((i+1)/AGENTS.length*100)});
+    ss({prg:Math.round((i+1)/AG.length*100)});
   }
   ss({act:null,run:false});
 }
 function tg(id){ss({exp:st.exp===id?null:id});}
 function rd(){
   var grp={};
-  AGENTS.forEach(function(a){if(!grp[a.lv])grp[a.lv]=[];grp[a.lv].push(a);});
+  AG.forEach(function(a){if(!grp[a.lv])grp[a.lv]=[];grp[a.lv].push(a);});
   var done=Object.keys(st.rs).length;
   var h='<div class="hdr"><div class="wrap">';
   h+='<div class="tag">REKLAM PRODUKSIYON SISTEMI</div>';
@@ -108,8 +108,8 @@ function rd(){
   h+='<p class="sub">16 uzman ajan &mdash; Senaryo analizi &mdash; Profesyonel maliyet teklifi</p>';
   h+='</div></div><div class="cnt">';
   h+='<div class="box"><label class="lbl">MUSTERI SENARYOSU</label>';
-  h+='<textarea id="sc" placeholder="Musteri senaryosunu buraya yapistirin...">'+e(st.sc)+'</textarea>';
-  h+='<div class="row"><span class="info">'+(done>0?done+"/"+AGENTS.length+" ajan tamamlandi":"")+'</span>';
+  h+='<textarea id="sc" placeholder="Musteri senaryosunu buraya yapistirin...">'+esc(st.sc)+'</textarea>';
+  h+='<div class="row"><span class="info">'+(done>0?done+"/"+AG.length+" ajan tamamlandi":"")+'</span>';
   h+='<button class="btn '+(st.run?"bx":"bg")+'" onclick="go()">'+(st.run?"Calisiyor... %"+st.prg:"TUM AJANLARI CALISTIR")+'</button></div>';
   if(st.run)h+='<div class="pb"><div class="pf" style="width:'+st.prg+'%"></div></div>';
   h+='</div>';
@@ -132,14 +132,14 @@ function rd(){
       if(iD)h+='<span style="color:#333;font-size:12px">'+(iE?"&#9650;":"&#9660;")+'</span>';
       h+='</div>';
       if(iA)h+='<div class="ab"><div class="af" style="background:linear-gradient(90deg,transparent,'+a.cl+',transparent)"></div></div>';
-      if(iD&&iE)h+='<div class="cb"><pre>'+e(st.rs[a.id])+'</pre></div>';
+      if(iD&&iE)h+='<div class="cb"><pre>'+esc(st.rs[a.id])+'</pre></div>';
       h+='</div>';
     });
     h+='</div>';
   });
   if(st.rs.q3){
     h+='<div class="prop"><div class="ptag">MUSTERIYE SUNULACAK TEKLIF</div>';
-    h+='<pre>'+e(st.rs.q3)+'</pre></div>';
+    h+='<pre>'+esc(st.rs.q3)+'</pre></div>';
   }
   h+='</div>';
   document.getElementById("app").innerHTML=h;
