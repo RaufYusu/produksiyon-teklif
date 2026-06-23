@@ -3,156 +3,215 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sinematik Produksiyon Teklif Sistemi</title>
+<title>Sinematik Produksiyon Teklif</title>
 <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#080808;color:#e8e8e8;font-family:Inter,Helvetica Neue,sans-serif;min-height:100vh}
-textarea::placeholder{color:#2a2a2a}
+body{background:#080808;color:#e8e8e8;font-family:Inter,sans-serif;min-height:100vh}
+textarea{font-family:inherit}
+.agent-card{background:#0c0c0c;border:1px solid #141414;border-radius:6px;margin-bottom:8px;overflow:hidden;transition:all 0.2s}
+.agent-card.active{background:#0d0d14}
+.agent-header{display:flex;align-items:center;gap:14px;padding:14px 18px;cursor:pointer}
+.agent-result{padding:16px 18px 18px 52px;border-top:1px solid #141414}
+.progress-bar{height:2px;background:#1a1a1a;border-radius:1px;margin-top:12px}
+.progress-fill{height:100%;background:#c9a84c;border-radius:1px;transition:width 0.3s}
+.badge{font-size:9px;letter-spacing:2px;padding:2px 8px;border-radius:3px}
 @keyframes slide{0%{transform:translateX(-100%);width:40%}100%{transform:translateX(300%);width:40%}}
+.anim-bar{height:1px;background:#111;overflow:hidden}
+.anim-inner{height:100%;animation:slide 1.5s infinite}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const AGENTS=[
-{id:"orchestrator",level:0,levelName:"ORKESTRATOR",accentColor:"#c9a84c",icon:"*",name:"Produksiyon Muduru",role:"Tum sistemi yonetir",systemPrompt:"Sen bir produksiyon mudurususun. Senaryoyu analiz edip ozet cik: 1.Kapsam 2.Cekim gun sayisi 3.Zorluk 4.Kritik notlar. Turkce yaz."},
-{id:"brief",level:1,levelName:"STRATEJI",accentColor:"#7c3aed",icon:"o",name:"Brief Analiz",role:"Hedef kitle, ton, platform",systemPrompt:"Sen bir strateji uzmanisinin. 1.Hedef kitle 2.Ton 3.Ana mesaj 4.Platform 5.Sure. Turkce yaz."},
-{id:"concept",level:2,levelName:"KREATIF",accentColor:"#d97706",icon:"@",name:"Konsept",role:"Kreatif yon, mood",systemPrompt:"Sen kreatif direktorsun. 1.Konsept 2.Gorsel dil 3.Referanslar 4.Muzik 5.Mood. Turkce yaz."},
-{id:"storyboard",level:2,levelName:"KREATIF",accentColor:"#d97706",icon:"#",name:"Storyboard",role:"Sahne plani",systemPrompt:"Sen storyboard sanatcisissin. Her sahne icin: no, cekim acisi, hareket, aksiyon, sure. Turkce yaz."},
-{id:"shotlist",level:2,levelName:"KREATIF",accentColor:"#d97706",icon:"=",name:"Shot List",role:"Teknik cekim listesi",systemPrompt:"Sen 1.AS sin. Shot listesi: no, tip, lens, kamera, isik, sure, oncelik. Turkce yaz."},
-{id:"location",level:3,levelName:"PRODUKSIYON",accentColor:"#16a34a",icon:"+",name:"Lokasyon",role:"Mekan, izin, kiralama",systemPrompt:"Sen lokasyon menajerisin. 1.Mekanlar 2.Izinler 3.Kiralama TL 4.Alternatifler. Turkce yaz."},
-{id:"cast",level:3,levelName:"PRODUKSIYON",accentColor:"#16a34a",icon:"O",name:"Cast",role:"Oyuncu, figuran",systemPrompt:"Sen casting direktorsun. 1.Oyuncular 2.Profiller 3.Figuran 4.Ucret TL 5.Toplam. Turkce yaz."},
-{id:"equipment",level:3,levelName:"PRODUKSIYON",accentColor:"#16a34a",icon:"^",name:"Ekipman",role:"Kamera, isik, ses, drone",systemPrompt:"Sen ekipman koordinatorusun. 1.Kamera 2.Isik 3.Ses 4.Ozel ekipman 5.Kiralama TL. Turkce yaz."},
-{id:"crew",level:3,levelName:"PRODUKSIYON",accentColor:"#16a34a",icon:"%",name:"Kadro",role:"Yonetmen, DOP, ekip",systemPrompt:"Sen produksiyon koordinatorusun. 1.Kadro 2.Freelance mi 3.Ucret TL 4.Gun sayisi 5.Toplam. Turkce yaz."},
-{id:"schedule",level:3,levelName:"PRODUKSIYON",accentColor:"#16a34a",icon:"~",name:"Takvim",role:"Gun bazli plan",systemPrompt:"Sen 1.AS sin. 1.Pre-prod 2.Cekim gunleri 3.Post 4.Sure 5.Riskler. Turkce yaz."},
-{id:"edit",level:4,levelName:"POST",accentColor:"#2563eb",icon:">",name:"Edit",role:"Kurgu, versiyonlar",systemPrompt:"Sen kurgu direktorsun. 1.Edit sureci 2.Yazilim 3.Versiyonlar 4.Revizyon 5.Butce TL. Turkce yaz."},
-{id:"vfx",level:4,levelName:"POST",accentColor:"#2563eb",icon:"x",name:"Renk ve VFX",role:"Color, efektler",systemPrompt:"Sen post supervizorsun. 1.Color grading 2.VFX 3.Motion graphics 4.Formatlar 5.Butce TL. Turkce yaz."},
-{id:"sound",level:4,levelName:"POST",accentColor:"#2563eb",icon:"s",name:"Ses ve Muzik",role:"Muzik, seslendirme",systemPrompt:"Sen ses direktorsun. 1.Muzik stratejisi 2.Ses tasarimi 3.Seslendirme 4.Studio 5.Butce TL. Turkce yaz."},
-{id:"budget",level:5,levelName:"TEKLIF",accentColor:"#dc2626",icon:"$",name:"Butce",role:"Maliyet tablosu",systemPrompt:"Sen finans direktorsun. Konsolide butce: A.Pre-prod B.Cekim C.Post D.Genel(%10). TOPLAM NET MALIYET TL. Yaz."},
-{id:"pricing",level:5,levelName:"TEKLIF",accentColor:"#dc2626",icon:"!",name:"Fiyatlama",role:"Ajans kari, marj",systemPrompt:"Sen is gelistirme direktorsun. Net maliyetten musteri fiyati: 1.Ajans %15-20 2.Kreatif 3.Risk 4.Paketler. TL yaz."},
-{id:"proposal",level:5,levelName:"TEKLIF",accentColor:"#dc2626",icon:"P",name:"Teklif Belgesi",role:"Musteri teklifi",systemPrompt:"Sen genel mudursun. Teklif: 1.PROJE OZETI 2.KREATIF 3.KAPSAM 4.TESLIMAT 5.TAKVIM 6.BUTCE 7.ODEME. Profesyonel Turkce yaz."}
+<div id="app"></div>
+<script>
+var AGENTS = [
+  {id:"orchestrator",level:0,name:"Produksiyon Muduru",role:"Tum sistemi yonetir",color:"#c9a84c",prompt:"Sen bir produksiyon mudurususun. Senaryoyu analiz et ve ozet cik: 1.Genel kapsam 2.Cekim gun sayisi 3.Zorluk seviyesi 4.Kritik notlar 5.Yaklasim onerisi. Turkce yaz."},
+  {id:"brief",level:1,name:"Brief Analiz",role:"Hedef kitle, ton, platform",color:"#7c3aed",prompt:"Sen strateji uzmanisinin. Analiz et: 1.Hedef kitle 2.Ton 3.Ana mesaj 4.Platform onerileri 5.Sure. Turkce yaz."},
+  {id:"concept",level:2,name:"Konsept",role:"Kreatif yon, mood",color:"#d97706",prompt:"Sen kreatif direktorsun. 1.Konsept basligi 2.Gorsel dil 3.Referanslar 4.Muzik 5.Mood kelimeler. Turkce yaz."},
+  {id:"storyboard",level:2,name:"Storyboard",role:"Sahne plani",color:"#d97706",prompt:"Sen storyboard sanatcisissin. Her sahne icin: no, cekim acisi, kamera hareketi, aksiyon, sure. Turkce yaz."},
+  {id:"shotlist",level:2,name:"Shot List",role:"Teknik cekim listesi",color:"#d97706",prompt:"Sen 1. AS sin. Shot listesi olustur: no, tip, lens, kamera, isik, sure, oncelik. Turkce yaz."},
+  {id:"location",level:3,name:"Lokasyon",role:"Mekan, izin, kiralama",color:"#16a34a",prompt:"Sen lokasyon menajerisin. 1.Lokasyonlar 2.Izin gereksinimleri 3.Kiralama TL 4.Alternatifler 5.Toplam butce. Turkce yaz."},
+  {id:"cast",level:3,name:"Cast",role:"Oyuncu, figuran",color:"#16a34a",prompt:"Sen casting direktorsun. 1.Oyuncu listesi 2.Profiller 3.Figuran 4.Ucret TL 5.Toplam. Turkce yaz."},
+  {id:"equipment",level:3,name:"Ekipman",role:"Kamera, isik, ses, drone",color:"#16a34a",prompt:"Sen ekipman koordinatorusun. 1.Kamera 2.Isik 3.Ses 4.Ozel ekipman 5.Kiralama TL 6.Toplam. Turkce yaz."},
+  {id:"crew",level:3,name:"Kadro",role:"Yonetmen, DOP, ekip",color:"#16a34a",prompt:"Sen produksiyon koordinatorusun. 1.Kadro listesi 2.Freelance mi 3.Ucret TL 4.Gun sayisi 5.Toplam. Turkce yaz."},
+  {id:"schedule",level:3,name:"Takvim",role:"Gun bazli plan",color:"#16a34a",prompt:"Sen 1. AS sin. 1.Pre-prod takvim 2.Cekim gunleri 3.Post takvim 4.Toplam sure 5.Riskler. Turkce yaz."},
+  {id:"edit",level:4,name:"Edit",role:"Kurgu, versiyonlar",color:"#2563eb",prompt:"Sen kurgu direktorsun. 1.Edit sureci 2.Yazilim 3.Versiyonlar 4.Revizyon turlari 5.Butce TL. Turkce yaz."},
+  {id:"vfx",level:4,name:"Renk ve VFX",role:"Color grading, efektler",color:"#2563eb",prompt:"Sen post supervizorsun. 1.Color grading 2.VFX 3.Motion graphics 4.Formatlar 5.Butce TL. Turkce yaz."},
+  {id:"sound",level:4,name:"Ses ve Muzik",role:"Muzik, seslendirme",color:"#2563eb",prompt:"Sen ses direktorsun. 1.Muzik stratejisi 2.Ses tasarimi 3.Seslendirme 4.Studio 5.Butce TL. Turkce yaz."},
+  {id:"budget",level:5,name:"Butce",role:"Maliyet tablosu",color:"#dc2626",prompt:"Sen finans direktorsun. Konsolide butce tablosu: A.Pre-prod B.Cekim C.Post D.Genel(%10 buffer). TOPLAM NET MALIYET. TL rakamlarla yaz."},
+  {id:"pricing",level:5,name:"Fiyatlama",role:"Ajans kari, marj",color:"#dc2626",prompt:"Sen is gelistirme direktorsun. Net maliyetten musteri fiyati: 1.Ajans ucreti %15-20 2.Kreatif bedel 3.Risk payi 4.Ekonomik/Standart/Premium paketler 5.Odeme plani. TL yaz."},
+  {id:"proposal",level:5,name:"Teklif Belgesi",role:"Musteri teklifi",color:"#dc2626",prompt:"Sen genel mudursun. Musteri teklifi: 1.PROJE OZETI 2.KREATIF YAKLASIM 3.PRODUKSIYON KAPSAMI 4.TESLIMAT LISTESI 5.PROJE TAKVIMI 6.BUTCE OZETI 7.ODEME KOSULLARI 8.NOTLAR. Profesyonel Turkce yaz."}
 ];
-const LVL={0:"#c9a84c",1:"#7c3aed",2:"#d97706",3:"#16a34a",4:"#2563eb",5:"#dc2626"};
 
-function App(){
-  const [scenario,setScenario]=React.useState("");
-  const [results,setResults]=React.useState({});
-  const [running,setRunning]=React.useState(false);
-  const [active,setActive]=React.useState(null);
-  const [exp,setExp]=React.useState(null);
-  const [prog,setProg]=React.useState(0);
+var state = {scenario:"", results:{}, running:false, active:null, expanded:null, progress:0};
 
-  const call=async(agent,ctx)=>{
-    setActive(agent.id);
-    try{
-      const userMsg="Senaryo:\n"+scenario+(ctx?"\n\nOnceki analizler:\n"+ctx:"");
-      const r=await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:agent.systemPrompt,messages:[{role:"user",content:userMsg}]})
-      });
-      const d=await r.json();
-      const t=(d.content||[]).map(c=>c.text||"").join("")||"Yanit alinamadi.";
-      setResults(p=>({...p,[agent.id]:t}));
-      return t;
-    }catch(e){
-      const err="Hata: "+e.message;
-      setResults(p=>({...p,[agent.id]:err}));
-      return err;
-    }
-  };
-
-  const runAll=async()=>{
-    if(!scenario.trim())return;
-    setRunning(true);setResults({});setProg(0);
-    let ctx="";
-    for(let i=0;i<AGENTS.length;i++){
-      const a=AGENTS[i];
-      const r=await call(a,ctx);
-      ctx+="\n\n["+a.name+"]:\n"+r;
-      setProg(Math.round((i+1)/AGENTS.length*100));
-    }
-    setActive(null);setRunning(false);
-  };
-
-  const grouped=AGENTS.reduce((acc,a)=>{
-    const k=a.level+"-"+a.levelName;
-    if(!acc[k])acc[k]=[];
-    acc[k].push(a);
-    return acc;
-  },{});
-
-  return (
-    <div style={{minHeight:"100vh",background:"#080808",color:"#e8e8e8"}}>
-      <div style={{borderBottom:"1px solid #1a1a1a",padding:"32px 40px 24px",background:"linear-gradient(180deg,#0d0d0d,#080808)"}}>
-        <div style={{maxWidth:960,margin:"0 auto"}}>
-          <div style={{fontSize:11,letterSpacing:4,color:"#c9a84c",fontWeight:600,marginBottom:6}}>REKLAM PRODUKSIYON SISTEMI</div>
-          <h1 style={{fontSize:28,fontWeight:300,color:"#fff",margin:0}}>Sinematik Produksiyon <span style={{color:"#c9a84c",fontWeight:600}}>Fiyat Ajani</span></h1>
-          <p style={{color:"#555",fontSize:13,marginTop:8}}>16 uzman ajan — Senaryo analizi — Profesyonel maliyet teklifi</p>
-        </div>
-      </div>
-      <div style={{maxWidth:960,margin:"0 auto",padding:"32px 40px"}}>
-        <div style={{background:"#0f0f0f",border:"1px solid #1e1e1e",borderRadius:8,padding:24,marginBottom:24}}>
-          <label style={{fontSize:11,letterSpacing:3,color:"#555",display:"block",marginBottom:12,fontWeight:600}}>MUSTERI SENARYOSU</label>
-          <textarea value={scenario} onChange={e=>setScenario(e.target.value)} placeholder="Musteri senaryosunu buraya yapistirin..." style={{width:"100%",minHeight:140,background:"#080808",border:"1px solid #222",borderRadius:6,color:"#d0d0d0",fontSize:14,lineHeight:1.7,padding:"14px 16px",resize:"vertical",outline:"none",boxSizing:"border-box"}}/>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:16}}>
-            <div style={{fontSize:12,color:"#444"}}>{Object.keys(results).length>0 ? Object.keys(results).length+"/"+AGENTS.length+" ajan tamamlandi" : ""}</div>
-            <button onClick={runAll} disabled={running||!scenario.trim()} style={{background:running?"#1a1a1a":"#c9a84c",color:running?"#444":"#000",border:"none",borderRadius:6,padding:"12px 28px",fontSize:13,fontWeight:600,letterSpacing:1,cursor:running||!scenario.trim()?"not-allowed":"pointer"}}>
-              {running ? "Calisiyor... %"+prog : "TUM AJANLARI CALISTIR"}
-            </button>
-          </div>
-          {running && <div style={{marginTop:12,height:2,background:"#1a1a1a",borderRadius:1}}><div style={{height:"100%",width:prog+"%",background:"#c9a84c",borderRadius:1,transition:"width 0.3s"}}/></div>}
-        </div>
-        {Object.entries(grouped).map(([key,agents])=>{
-          const lvl=agents[0].level;
-          const lc=LVL[lvl];
-          return(
-            <div key={key} style={{marginBottom:20}}>
-              <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:10,paddingBottom:8,borderBottom:"1px solid "+lc+"22"}}>
-                <span style={{fontSize:10,letterSpacing:3,color:lc,fontWeight:700}}>SEVIYE {lvl}</span>
-                <span style={{fontSize:11,color:"#333",letterSpacing:2}}>{agents[0].levelName}</span>
-                <div style={{flex:1,height:1,background:lc+"11"}}/>
-              </div>
-              {agents.map(agent=>{
-                const isAct=active===agent.id;
-                const isDone=!!results[agent.id];
-                const isExp=exp===agent.id;
-                return(
-                  <div key={agent.id} style={{background:isAct?"#0d0d14":"#0c0c0c",border:"1px solid "+(isAct?agent.accentColor+"44":isDone?"#1e1e1e":"#141414"),borderRadius:6,overflow:"hidden",marginBottom:8}}>
-                    <div style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",cursor:isDone?"pointer":"default"}} onClick={()=>isDone&&setExp(isExp?null:agent.id)}>
-                      <span style={{fontSize:16,color:isAct?agent.accentColor:isDone?agent.accentColor+"99":"#2a2a2a",width:20,textAlign:"center"}}>{agent.icon}</span>
-                      <div style={{flex:1}}>
-                        <div style={{display:"flex",alignItems:"center",gap:8}}>
-                          <span style={{fontSize:13,fontWeight:600,color:isAct?"#fff":isDone?"#ccc":"#444"}}>{agent.name}</span>
-                          {isAct && <span style={{fontSize:9,letterSpacing:2,color:agent.accentColor,background:agent.accentColor+"15",padding:"2px 8px",borderRadius:3}}>CALISIYOR</span>}
-                          {isDone&&!isAct && <span style={{fontSize:9,letterSpacing:2,color:"#16a34a",background:"#16a34a15",padding:"2px 8px",borderRadius:3}}>TAMAMLANDI</span>}
-                        </div>
-                        <div style={{fontSize:11,color:"#333",marginTop:2}}>{agent.role}</div>
-                      </div>
-                      {isDone && <span style={{color:"#333",fontSize:12}}>{isExp?"▲":"▼"}</span>}
-                    </div>
-                    {isAct && <div style={{height:1,background:"#111",overflow:"hidden"}}><div style={{height:"100%",background:"linear-gradient(90deg,transparent,"+agent.accentColor+",transparent)",animation:"slide 1.5s infinite"}}/></div>}
-                    {isDone&&isExp && <div style={{padding:"16px 18px 18px 52px",borderTop:"1px solid #141414"}}><pre style={{fontSize:12,lineHeight:1.8,color:"#999",whiteSpace:"pre-wrap",wordBreak:"break-word",margin:0}}>{results[agent.id]}</pre></div>}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
-        {results.proposal && (
-          <div style={{marginTop:32,background:"linear-gradient(135deg,#0d0500,#150a00)",border:"1px solid #c9a84c44",borderRadius:8,padding:28}}>
-            <div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",marginBottom:16,fontWeight:700}}>MUSTERIYE SUNULACAK TEKLIF</div>
-            <pre style={{fontSize:13,lineHeight:1.9,color:"#d0b96a",whiteSpace:"pre-wrap",wordBreak:"break-word",margin:0}}>{results.proposal}</pre>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+function setState(updates) {
+  Object.assign(state, updates);
+  render();
 }
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+
+async function callAgent(agent, ctx) {
+  setState({active: agent.id});
+  try {
+    var userContent = "Senaryo:" + String.fromCharCode(10) + state.scenario;
+    if (ctx) userContent += String.fromCharCode(10) + String.fromCharCode(10) + "Onceki analizler:" + String.fromCharCode(10) + ctx;
+    var resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: agent.prompt,
+        messages: [{role: "user", content: userContent}]
+      })
+    });
+    var data = await resp.json();
+    var text = (data.content || []).map(function(c){return c.text||"";}).join("") || "Yanit alinamadi.";
+    var newResults = Object.assign({}, state.results);
+    newResults[agent.id] = text;
+    setState({results: newResults});
+    return text;
+  } catch(e) {
+    var err = "Hata: " + e.message;
+    var nr = Object.assign({}, state.results);
+    nr[agent.id] = err;
+    setState({results: nr});
+    return err;
+  }
+}
+
+async function runAll() {
+  if (!state.scenario.trim()) return;
+  setState({running:true, results:{}, progress:0});
+  var ctx = "";
+  for (var i = 0; i < AGENTS.length; i++) {
+    var a = AGENTS[i];
+    var r = await callAgent(a, ctx);
+    ctx += String.fromCharCode(10) + String.fromCharCode(10) + "[" + a.name + "]:" + String.fromCharCode(10) + r;
+    setState({progress: Math.round((i+1)/AGENTS.length*100)});
+  }
+  setState({active:null, running:false});
+}
+
+var LVL_COLOR = {0:"#c9a84c",1:"#7c3aed",2:"#d97706",3:"#16a34a",4:"#2563eb",5:"#dc2626"};
+var LVL_NAME = {0:"ORKESTRATOR",1:"STRATEJI",2:"KREATIF",3:"PRODUKSIYON",4:"POST",5:"TEKLIF"};
+
+function render() {
+  var app = document.getElementById("app");
+
+  var grouped = {};
+  AGENTS.forEach(function(a){
+    var k = a.level;
+    if (!grouped[k]) grouped[k] = [];
+    grouped[k].push(a);
+  });
+
+  var doneCount = Object.keys(state.results).length;
+
+  var html = '<div style="min-height:100vh;background:#080808;color:#e8e8e8">';
+
+  // Header
+  html += '<div style="border-bottom:1px solid #1a1a1a;padding:32px 40px 24px;background:linear-gradient(180deg,#0d0d0d,#080808)">';
+  html += '<div style="max-width:960px;margin:0 auto">';
+  html += '<div style="font-size:11px;letter-spacing:4px;color:#c9a84c;font-weight:600;margin-bottom:6px">REKLAM PRODUKSIYON SISTEMI</div>';
+  html += '<h1 style="font-size:28px;font-weight:300;color:#fff;margin:0">Sinematik Produksiyon <span style="color:#c9a84c;font-weight:600">Fiyat Ajani</span></h1>';
+  html += '<p style="color:#555;font-size:13px;margin-top:8px">16 uzman ajan — Senaryo analizi — Profesyonel maliyet teklifi</p>';
+  html += '</div></div>';
+
+  // Content
+  html += '<div style="max-width:960px;margin:0 auto;padding:32px 40px">';
+
+  // Scenario input
+  html += '<div style="background:#0f0f0f;border:1px solid #1e1e1e;border-radius:8px;padding:24px;margin-bottom:24px">';
+  html += '<label style="font-size:11px;letter-spacing:3px;color:#555;display:block;margin-bottom:12px;font-weight:600">MUSTERI SENARYOSU</label>';
+  html += '<textarea id="scenario-input" placeholder="Musteri senaryosunu buraya yapistirin..." style="width:100%;min-height:140px;background:#080808;border:1px solid #222;border-radius:6px;color:#d0d0d0;font-size:14px;line-height:1.7;padding:14px 16px;resize:vertical;outline:none;box-sizing:border-box">' + state.scenario.replace(/</g,'&lt;') + '</textarea>';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px">';
+  html += '<div style="font-size:12px;color:#444">' + (doneCount > 0 ? doneCount + "/" + AGENTS.length + " ajan tamamlandi" : "") + '</div>';
+  var btnStyle = 'border:none;border-radius:6px;padding:12px 28px;font-size:13px;font-weight:600;letter-spacing:1px;cursor:' + (state.running ? 'not-allowed' : 'pointer') + ';background:' + (state.running ? '#1a1a1a' : '#c9a84c') + ';color:' + (state.running ? '#444' : '#000');
+  html += '<button onclick="handleRun()" style="' + btnStyle + '">' + (state.running ? 'Calisiyor... %' + state.progress : 'TUM AJANLARI CALISTIR') + '</button>';
+  html += '</div>';
+  if (state.running) {
+    html += '<div class="progress-bar"><div class="progress-fill" style="width:' + state.progress + '%"></div></div>';
+  }
+  html += '</div>';
+
+  // Agent groups
+  Object.keys(grouped).forEach(function(lvl) {
+    var agents = grouped[lvl];
+    var lc = LVL_COLOR[lvl];
+    html += '<div style="margin-bottom:20px">';
+    html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid ' + lc + '22">';
+    html += '<span style="font-size:10px;letter-spacing:3px;color:' + lc + ';font-weight:700">SEVIYE ' + lvl + '</span>';
+    html += '<span style="font-size:11px;color:#333;letter-spacing:2px">' + LVL_NAME[lvl] + '</span>';
+    html += '<div style="flex:1;height:1px;background:' + lc + '11"></div>';
+    html += '</div>';
+
+    agents.forEach(function(agent) {
+      var isAct = state.active === agent.id;
+      var isDone = !!state.results[agent.id];
+      var isExp = state.expanded === agent.id;
+      var cardBg = isAct ? '#0d0d14' : '#0c0c0c';
+      var cardBorder = isAct ? agent.color + '44' : isDone ? '#1e1e1e' : '#141414';
+
+      html += '<div class="agent-card' + (isAct ? ' active' : '') + '" style="background:' + cardBg + ';border:1px solid ' + cardBorder + '">';
+      html += '<div class="agent-header" onclick="toggleAgent('' + agent.id + '')">';
+      html += '<span style="font-size:14px;color:' + (isAct ? agent.color : isDone ? agent.color + '99' : '#2a2a2a') + ';width:20px;text-align:center">&#9679;</span>';
+      html += '<div style="flex:1">';
+      html += '<div style="display:flex;align-items:center;gap:8px">';
+      html += '<span style="font-size:13px;font-weight:600;color:' + (isAct ? '#fff' : isDone ? '#ccc' : '#444') + '">' + agent.name + '</span>';
+      if (isAct) html += '<span class="badge" style="color:' + agent.color + ';background:' + agent.color + '15">CALISIYOR</span>';
+      if (isDone && !isAct) html += '<span class="badge" style="color:#16a34a;background:#16a34a15">TAMAMLANDI</span>';
+      html += '</div>';
+      html += '<div style="font-size:11px;color:#333;margin-top:2px">' + agent.role + '</div>';
+      html += '</div>';
+      if (isDone) html += '<span style="color:#333;font-size:12px">' + (isExp ? '▲' : '▼') + '</span>';
+      html += '</div>';
+
+      if (isAct) {
+        html += '<div class="anim-bar"><div class="anim-inner" style="background:linear-gradient(90deg,transparent,' + agent.color + ',transparent)"></div></div>';
+      }
+
+      if (isDone && isExp) {
+        html += '<div class="agent-result"><pre style="font-size:12px;line-height:1.8;color:#999;white-space:pre-wrap;word-break:break-word;margin:0">' + state.results[agent.id].replace(/</g,'&lt;') + '</pre></div>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+
+  // Final proposal
+  if (state.results.proposal) {
+    html += '<div style="margin-top:32px;background:linear-gradient(135deg,#0d0500,#150a00);border:1px solid #c9a84c44;border-radius:8px;padding:28px">';
+    html += '<div style="font-size:10px;letter-spacing:4px;color:#c9a84c;margin-bottom:16px;font-weight:700">MUSTERIYE SUNULACAK TEKLIF</div>';
+    html += '<pre style="font-size:13px;line-height:1.9;color:#d0b96a;white-space:pre-wrap;word-break:break-word;margin:0">' + state.results.proposal.replace(/</g,'&lt;') + '</pre>';
+    html += '</div>';
+  }
+
+  html += '</div></div>';
+  app.innerHTML = html;
+
+  // Rebind textarea
+  var ta = document.getElementById('scenario-input');
+  if (ta) {
+    ta.value = state.scenario;
+    ta.addEventListener('input', function(){ state.scenario = this.value; });
+  }
+}
+
+function toggleAgent(id) {
+  setState({expanded: state.expanded === id ? null : id});
+}
+
+function handleRun() {
+  if (state.running) return;
+  var ta = document.getElementById('scenario-input');
+  if (ta) state.scenario = ta.value;
+  if (!state.scenario.trim()) return;
+  runAll();
+}
+
+render();
 </script>
 </body>
 </html>
