@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sinematik Produksiyon Teklif Sistemi</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080808;color:#e8e8e8;font-family:Inter,Helvetica Neue,sans-serif;min-height:100vh}
+textarea::placeholder{color:#2a2a2a}
+@keyframes slide{0%{transform:translateX(-100%);width:40%}100%{transform:translateX(300%);width:40%}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const AGENTS=[
+{id:"orchestrator",level:0,levelName:"ORKESTRATOR",accentColor:"#c9a84c",icon:"*",name:"Produksiyon Muduru",role:"Tum sistemi yonetir",systemPrompt:"Sen bir reklam ajansi produksiyon mudurususun. Senaryoyu analiz edip ozet cik: 1.Genel kapsam 2.Cekim gun sayisi 3.Zorluk seviyesi 4.Kritik notlar 5.Yaklasim onerisi. Turkce yaz."},
+{id:"brief",level:1,levelName:"STRATEJI",accentColor:"#7c3aed",icon:"o",name:"Brief Analiz",role:"Hedef kitle, ton, platform",systemPrompt:"Sen bir strateji uzmanisinin. 1.Hedef kitle 2.Ton 3.Ana mesaj 4.Platform onerileri 5.Sure. Turkce yaz."},
+{id:"concept",level:2,levelName:"KREATIF",accentColor:"#d97706",icon:"@",name:"Konsept",role:"Kreatif yon, mood",systemPrompt:"Sen kreatif direktorsun. 1.Konsept basligi 2.Gorsel dil 3.Referanslar 4.Muzik karakteri 5.Mood kelimeler. Turkce yaz."},
+{id:"storyboard",level:2,levelName:"KREATIF",accentColor:"#d97706",icon:"#",name:"Storyboard",role:"Sahne plani",systemPrompt:"Sen storyboard sanatcisissin. Her sahne icin: sahne no, cekim acisi, kamera hareketi, aksiyon, sure. Turkce yaz."},
+{id:"shotlist",level:2,levelName:"KREATIF",accentColor:"#d97706",icon:"=",name:"Shot List",role:"Teknik cekim listesi",systemPrompt:"Sen 1.Asistan Yonetmensin. Shot listesi: shot no, tip (WS/MS/CU), lens, kamera sistemi, isik, sure, oncelik. Turkce yaz."},
+{id:"location",level:3,levelName:"PRODUKSIYON",accentColor:"#16a34a",icon:"+",name:"Lokasyon",role:"Mekan, izin, kiralama",systemPrompt:"Sen lokasyon menajerisin. 1.Lokasyon listesi 2.Izin gereksinimi 3.Kiralama TL 4.Alternatifler 5.Toplam lokasyon butcesi. Turkce, TL rakamlarla yaz."},
+{id:"cast",level:3,levelName:"PRODUKSIYON",accentColor:"#16a34a",icon:"O",name:"Cast",role:"Oyuncu, figuran",systemPrompt:"Sen casting direktorsun. 1.Oyuncu listesi 2.Profiller 3.Figuran sayisi 4.Ucret TL 5.Toplam cast butcesi. Turkce yaz."},
+{id:"equipment",level:3,levelName:"PRODUKSIYON",accentColor:"#16a34a",icon:"^",name:"Ekipman",role:"Kamera, isik, ses, drone",systemPrompt:"Sen ekipman koordinatorusun. 1.Kamera 2.Isik 3.Ses 4.Ozel ekipman (drone/steadicam) 5.Kiralama TL 6.Toplam ekipman butcesi. Turkce yaz."},
+{id:"crew",level:3,levelName:"PRODUKSIYON",accentColor:"#16a34a",icon:"%",name:"Kadro",role:"Yonetmen, DOP, ekip",systemPrompt:"Sen produksiyon koordinatorusun. 1.Kadro listesi 2.Freelance mi? 3.Ucretler TL 4.Calisma gun sayisi 5.Toplam kadro butcesi. Turkce yaz."},
+{id:"schedule",level:3,levelName:"PRODUKSIYON",accentColor:"#16a34a",icon:"~",name:"Takvim",role:"Gun bazli plan",systemPrompt:"Sen 1.AS sin. 1.Pre-produksiyon takvimi 2.Cekim gunleri 3.Post takvimi 4.Toplam sure 5.Riskler. Turkce yaz."},
+{id:"edit",level:4,levelName:"POST",accentColor:"#2563eb",icon:">",name:"Edit",role:"Kurgu, versiyonlar",systemPrompt:"Sen kurgu direktorsun. 1.Edit sureci ve süresi 2.Yazilim onerisi 3.Versiyonlar 4.Revizyon turlari 5.Edit butcesi TL. Turkce yaz."},
+{id:"vfx",level:4,levelName:"POST",accentColor:"#2563eb",icon:"x",name:"Renk & VFX",role:"Color, efektler",systemPrompt:"Sen post supervizorsun. 1.Color grading 2.VFX ihtiyaclari 3.Motion graphics 4.Format cikislari 5.Butce TL. Turkce yaz."},
+{id:"sound",level:4,levelName:"POST",accentColor:"#2563eb",icon:"~",name:"Ses & Muzik",role:"Muzik, seslendirme",systemPrompt:"Sen ses direktorsun. 1.Muzik stratejisi ve butcesi 2.Ses tasarimi 3.Seslendirme 4.Studio ihtiyaci 5.Toplam ses butcesi TL. Turkce yaz."},
+{id:"budget",level:5,levelName:"TEKLIF",accentColor:"#dc2626",icon:"$",name:"Butce",role:"Maliyet tablosu",systemPrompt:"Sen finans direktorsun. Konsolide butce tablosu: A.Pre-produksiyon B.Cekim gundleri C.Post-produksiyon D.Genel giderler (%10 buffer). TOPLAM NET MALIYET. TL rakamlarla yaz."},
+{id:"pricing",level:5,levelName:"TEKLIF",accentColor:"#dc2626",icon:"!",name:"Fiyatlama",role:"Ajans kari, marj",systemPrompt:"Sen is gelistirme direktorsun. Net maliyetten musteri fiyati: 1.Ajans ucreti %15-20 2.Kreatif bedel 3.Risk payi 4.KDV 5.Ekonomik/Standart/Premium paketler 6.Odeme plani. TL rakamlarla yaz."},
+{id:"proposal",level:5,levelName:"TEKLIF",accentColor:"#dc2626",icon:"P",name:"Teklif Belgesi",role:"Musteri teklifi",systemPrompt:"Sen genel mudursun. Profesyonel musteri teklifi: 1.PROJE OZETI 2.KREATIF YAKLASIM 3.PRODUKSIYON KAPSAMI 4.TESLIMAT LISTESI 5.PROJE TAKVIMI 6.BUTCE OZETI (3 secenek) 7.ODEME KOSULLARI 8.NOTLAR. Profesyonel Turkce yaz."}
+];
+const LVL={0:"#c9a84c",1:"#7c3aed",2:"#d97706",3:"#16a34a",4:"#2563eb",5:"#dc2626"};
+
+function App(){
+const[scenario,setScenario]=React.useState("");
+const[results,setResults]=React.useState({});
+const[loading,setLoading]=React.useState({});
+const[running,setRunning]=React.useState(false);
+const[active,setActive]=React.useState(null);
+const[exp,setExp]=React.useState(null);
+const[prog,setProg]=React.useState(0);
+
+const call=async(agent,ctx)=>{
+setLoading(p=>({...p,[agent.id]:true}));
+setActive(agent.id);
+try{
+const r=await fetch("https://api.anthropic.com/v1/messages",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:agent.systemPrompt,messages:[{role:"user",content:"Senaryo:
+"+scenario+(ctx?"
+
+Onceki analizler:
+"+ctx:"")}]})
+});
+const d=await r.json();
+const t=(d.content||[]).map(c=>c.text||"").join("")||"Yanit alinamadi.";
+setResults(p=>({...p,[agent.id]:t}));
+return t;
+}catch(e){
+const err="Hata: "+e.message;
+setResults(p=>({...p,[agent.id]:err}));
+return err;
+}finally{
+setLoading(p=>({...p,[agent.id]:false}));
+}
+};
+
+const runAll=async()=>{
+if(!scenario.trim())return;
+setRunning(true);setResults({});setProg(0);
+let ctx="";
+for(let i=0;i<AGENTS.length;i++){
+const a=AGENTS[i];
+const r=await call(a,ctx);
+ctx+="
+
+["+a.name+"]:
+"+r;
+setProg(Math.round((i+1)/AGENTS.length*100));
+}
+setActive(null);setRunning(false);
+};
+
+const grouped=AGENTS.reduce((acc,a)=>{
+const k=a.level+"-"+a.levelName;
+if(!acc[k])acc[k]=[];
+acc[k].push(a);
+return acc;
+},{});
+
+return(
+<div style={{minHeight:"100vh",background:"#080808",color:"#e8e8e8"}}>
+<div style={{borderBottom:"1px solid #1a1a1a",padding:"32px 40px 24px",background:"linear-gradient(180deg,#0d0d0d,#080808)"}}>
+<div style={{maxWidth:960,margin:"0 auto"}}>
+<div style={{fontSize:11,letterSpacing:4,color:"#c9a84c",fontWeight:600,marginBottom:6}}>REKLAM PRODUKSIYON SISTEMI</div>
+<h1 style={{fontSize:28,fontWeight:300,color:"#fff",margin:0}}>Sinematik Produksiyon <span style={{color:"#c9a84c",fontWeight:600}}>Fiyat Ajani</span></h1>
+<p style={{color:"#555",fontSize:13,marginTop:8}}>16 uzman ajan - Senaryo analizi - Profesyonel maliyet teklifi</p>
+</div>
+</div>
+<div style={{maxWidth:960,margin:"0 auto",padding:"32px 40px"}}>
+<div style={{background:"#0f0f0f",border:"1px solid #1e1e1e",borderRadius:8,padding:24,marginBottom:24}}>
+<label style={{fontSize:11,letterSpacing:3,color:"#555",display:"block",marginBottom:12,fontWeight:600}}>MUSTERI SENARYOSU</label>
+<textarea value={scenario} onChange={e=>setScenario(e.target.value)} placeholder="Musteri senaryosunu buraya yapistirin..." style={{width:"100%",minHeight:140,background:"#080808",border:"1px solid #222",borderRadius:6,color:"#d0d0d0",fontSize:14,lineHeight:1.7,padding:"14px 16px",resize:"vertical",outline:"none",boxSizing:"border-box"}}/>
+<div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:16}}>
+<div style={{fontSize:12,color:"#444"}}>{Object.keys(results).length>0&&Object.keys(results).length+"/"+AGENTS.length+" ajan tamamlandi"}</div>
+<button onClick={runAll} disabled={running||!scenario.trim()} style={{background:running?"#1a1a1a":"#c9a84c",color:running?"#444":"#000",border:"none",borderRadius:6,padding:"12px 28px",fontSize:13,fontWeight:600,letterSpacing:1,cursor:running||!scenario.trim()?"not-allowed":"pointer"}}>
+{running?"Calisiyor... %"+prog:"TUM AJANLARI CALISTIR"}
+</button>
+</div>
+{running&&<div style={{marginTop:12,height:2,background:"#1a1a1a",borderRadius:1}}><div style={{height:"100%",width:prog+"%",background:"#c9a84c",borderRadius:1,transition:"width 0.3s"}}/></div>}
+</div>
+{Object.entries(grouped).map(([key,agents])=>{
+const lvl=agents[0].level;
+const lc=LVL[lvl];
+return(
+<div key={key} style={{marginBottom:20}}>
+<div style={{display:"flex",alignItems:"center",gap:12,marginBottom:10,paddingBottom:8,borderBottom:"1px solid "+lc+"22"}}>
+<span style={{fontSize:10,letterSpacing:3,color:lc,fontWeight:700}}>SEVIYE {lvl}</span>
+<span style={{fontSize:11,color:"#333",letterSpacing:2}}>{agents[0].levelName}</span>
+<div style={{flex:1,height:1,background:lc+"11"}}/>
+</div>
+{agents.map(agent=>{
+const isAct=active===agent.id;
+const isDone=!!results[agent.id];
+const isExp=exp===agent.id;
+return(
+<div key={agent.id} style={{background:isAct?"#0d0d14":"#0c0c0c",border:"1px solid "+(isAct?agent.accentColor+"44":isDone?"#1e1e1e":"#141414"),borderRadius:6,overflow:"hidden",marginBottom:8}}>
+<div style={{display:"flex",alignItems:"center",gap:14,padding:"14px 18px",cursor:isDone?"pointer":"default"}} onClick={()=>isDone&&setExp(isExp?null:agent.id)}>
+<span style={{fontSize:16,color:isAct?agent.accentColor:isDone?agent.accentColor+"99":"#2a2a2a",width:20,textAlign:"center"}}>{agent.icon}</span>
+<div style={{flex:1}}>
+<div style={{display:"flex",alignItems:"center",gap:8}}>
+<span style={{fontSize:13,fontWeight:600,color:isAct?"#fff":isDone?"#ccc":"#444"}}>{agent.name}</span>
+{isAct&&<span style={{fontSize:9,letterSpacing:2,color:agent.accentColor,background:agent.accentColor+"15",padding:"2px 8px",borderRadius:3}}>CALISIYOR</span>}
+{isDone&&!isAct&&<span style={{fontSize:9,letterSpacing:2,color:"#16a34a",background:"#16a34a15",padding:"2px 8px",borderRadius:3}}>TAMAMLANDI</span>}
+</div>
+<div style={{fontSize:11,color:"#333",marginTop:2}}>{agent.role}</div>
+</div>
+{isDone&&<span style={{color:"#333",fontSize:12}}>{isExp?"^":"v"}</span>}
+</div>
+{isAct&&<div style={{height:1,background:"#111",overflow:"hidden"}}><div style={{height:"100%",background:"linear-gradient(90deg,transparent,"+agent.accentColor+",transparent)",animation:"slide 1.5s infinite"}}/></div>}
+{isDone&&isExp&&<div style={{padding:"16px 18px 18px 52px",borderTop:"1px solid #141414"}}><pre style={{fontSize:12,lineHeight:1.8,color:"#999",whiteSpace:"pre-wrap",wordBreak:"break-word",margin:0}}>{results[agent.id]}</pre></div>}
+</div>
+);
+})}
+</div>
+);
+})}
+{results.proposal&&(
+<div style={{marginTop:32,background:"linear-gradient(135deg,#0d0500,#150a00)",border:"1px solid #c9a84c44",borderRadius:8,padding:28}}>
+<div style={{fontSize:10,letterSpacing:4,color:"#c9a84c",marginBottom:16,fontWeight:700}}>MUSTERIYE SUNULACAK TEKLIF</div>
+<pre style={{fontSize:13,lineHeight:1.9,color:"#d0b96a",whiteSpace:"pre-wrap",wordBreak:"break-word",margin:0}}>{results.proposal}</pre>
+</div>
+)}
+</div>
+</div>
+);
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
