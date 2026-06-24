@@ -91,61 +91,73 @@ async function runAll(){
   }
   ss({act:null,run:false});
 }
-function tg(id){ss({exp:st.exp===id?null:id});}
 function rd(){
   var grp={};
   AG.forEach(function(a){if(!grp[a.lv])grp[a.lv]=[];grp[a.lv].push(a);});
   var done=Object.keys(st.rs).length;
-  var h='<div class="hdr"><div class="wrap">';
+  var h="";
+  h+='<div class="hdr"><div class="wrap">';
   h+='<div class="tag">REKLAM PRODUKSIYON SISTEMI</div>';
   h+='<h1>Sinematik Produksiyon <span>Fiyat Ajani</span></h1>';
   h+='<p class="sub">16 uzman ajan &mdash; Senaryo analizi &mdash; Profesyonel maliyet teklifi</p>';
   h+='</div></div><div class="cnt">';
   h+='<div class="box"><label class="lbl">MUSTERI SENARYOSU</label>';
   h+='<textarea id="sc" placeholder="Musteri senaryosunu buraya yapistirin...">'+esc(st.sc)+'</textarea>';
-  h+='<div class="row"><span class="info">'+(done>0?done+"/"+AG.length+" ajan tamamlandi":"")+'</span>';
-  h+='<button class="btn '+(st.run?"bx":"bg")+'" onclick="go()">'+(st.run?"Calisiyor... %"+st.prg:"TUM AJANLARI CALISTIR")+'</button></div>';
+  h+='<div class="row"><span class="info">'+(done>0?done+"/"+AG.length+" ajan tamamlandi":"")+"</span>";
+  var btnCls=st.run?"bx":"bg";
+  var btnTxt=st.run?"Calisiyor... %"+st.prg:"TUM AJANLARI CALISTIR";
+  h+='<button id="runbtn" class="btn '+btnCls+'">'+btnTxt+"</button></div>";
   if(st.run)h+='<div class="pb"><div class="pf" style="width:'+st.prg+'%"></div></div>';
-  h+='</div>';
+  h+="</div>";
   Object.keys(grp).sort(function(a,b){return a-b;}).forEach(function(lv){
     var agents=grp[lv];var lc=LC[lv];
     h+='<div class="grp"><div class="gl" style="border-bottom:1px solid '+lc+'22">';
-    h+='<span style="font-size:10px;letter-spacing:3px;color:'+lc+';font-weight:700">SEVIYE '+lv+'</span>';
-    h+='<span style="font-size:11px;color:#333;letter-spacing:2px">'+LN[lv]+'</span>';
+    h+='<span style="font-size:10px;letter-spacing:3px;color:'+lc+';font-weight:700">SEVIYE '+lv+"</span>";
+    h+='<span style="font-size:11px;color:#333;letter-spacing:2px">'+LN[lv]+"</span>";
     h+='<div class="gline" style="background:'+lc+'11"></div></div>';
     agents.forEach(function(a){
       var iA=st.act===a.id,iD=!!st.rs[a.id],iE=st.exp===a.id;
-      h+='<div class="card" style="background:'+(iA?"#0d0d14":"#0c0c0c")+';border:1px solid '+(iA?a.cl+"44":iD?"#1e1e1e":"#141414")+'">';
-      h+='<div class="ch" onclick="tg(''+a.id+'')">';
+      var bg=iA?"#0d0d14":"#0c0c0c";
+      var bd=iA?a.cl+"44":iD?"#1e1e1e":"#141414";
+      h+='<div class="card" data-id="'+a.id+'" style="background:'+bg+';border:1px solid '+bd+'">';
+      h+='<div class="ch" data-id="'+a.id+'">';
       h+='<span style="font-size:14px;color:'+(iA?a.cl:iD?a.cl+"99":"#2a2a2a")+';width:20px;text-align:center">&#9679;</span>';
       h+='<div style="flex:1"><div style="display:flex;align-items:center;gap:8px">';
-      h+='<span style="font-size:13px;font-weight:600;color:'+(iA?"#fff":iD?"#ccc":"#444")+'">'+a.nm+'</span>';
+      h+='<span style="font-size:13px;font-weight:600;color:'+(iA?"#fff":iD?"#ccc":"#444")+'">'+a.nm+"</span>";
       if(iA)h+='<span class="bdg" style="color:'+a.cl+';background:'+a.cl+'15">CALISIYOR</span>';
       if(iD&&!iA)h+='<span class="bdg" style="color:#16a34a;background:#16a34a15">TAMAMLANDI</span>';
-      h+='</div><div style="font-size:11px;color:#333;margin-top:2px">'+a.rl+'</div></div>';
-      if(iD)h+='<span style="color:#333;font-size:12px">'+(iE?"&#9650;":"&#9660;")+'</span>';
-      h+='</div>';
+      h+="</div>";
+      h+='<div style="font-size:11px;color:#333;margin-top:2px">'+a.rl+"</div></div>";
+      if(iD)h+='<span style="color:#333;font-size:12px">'+(iE?"&#9650;":"&#9660;")+"</span>";
+      h+="</div>";
       if(iA)h+='<div class="ab"><div class="af" style="background:linear-gradient(90deg,transparent,'+a.cl+',transparent)"></div></div>';
-      if(iD&&iE)h+='<div class="cb"><pre>'+esc(st.rs[a.id])+'</pre></div>';
-      h+='</div>';
+      if(iD&&iE)h+='<div class="cb"><pre>'+esc(st.rs[a.id])+"</pre></div>";
+      h+="</div>";
     });
-    h+='</div>';
+    h+="</div>";
   });
   if(st.rs.q3){
     h+='<div class="prop"><div class="ptag">MUSTERIYE SUNULACAK TEKLIF</div>';
-    h+='<pre>'+esc(st.rs.q3)+'</pre></div>';
+    h+='<pre>'+esc(st.rs.q3)+"</pre></div>";
   }
-  h+='</div>';
+  h+="</div>";
   document.getElementById("app").innerHTML=h;
   var sc=document.getElementById("sc");
   if(sc){sc.value=st.sc;sc.oninput=function(){st.sc=this.value;};}
-}
-function go(){
-  if(st.run)return;
-  var sc=document.getElementById("sc");
-  if(sc)st.sc=sc.value;
-  if(!st.sc.trim())return;
-  runAll();
+  var btn=document.getElementById("runbtn");
+  if(btn){btn.addEventListener("click",function(){
+    if(st.run)return;
+    var sc=document.getElementById("sc");
+    if(sc)st.sc=sc.value;
+    if(!st.sc.trim())return;
+    runAll();
+  });}
+  document.querySelectorAll(".ch").forEach(function(el){
+    el.addEventListener("click",function(){
+      var id=this.getAttribute("data-id");
+      if(id&&st.rs[id])ss({exp:st.exp===id?null:id});
+    });
+  });
 }
 rd();
 })();
