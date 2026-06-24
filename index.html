@@ -44,6 +44,7 @@ textarea{width:100%;min-height:140px;background:#080808;border:1px solid #222;bo
 <div id="app"></div>
 <script>
 (function(){
+var NL=String.fromCharCode(10);
 var API=String.fromCharCode(104,116,116,112,115,58,47,47,97,112,105,46,97,110,116,104,114,111,112,105,99,46,99,111,109,47,118,49,47,109,101,115,115,97,103,101,115);
 var MDL="claude-sonnet-4-6";
 var AG=[
@@ -61,7 +62,7 @@ var AG=[
 {id:"p2",lv:4,nm:"Renk ve VFX",rl:"Color grading, efektler",cl:"#2563eb",pr:"Sen post supervizorsun. 1.Color grading 2.VFX ihtiyaclari 3.Motion graphics 4.Format cikislari 5.Toplam butce TL. Turkce yaz."},
 {id:"p3",lv:4,nm:"Ses ve Muzik",rl:"Muzik, seslendirme",cl:"#2563eb",pr:"Sen ses direktorsun. 1.Muzik stratejisi 2.Ses tasarimi 3.Seslendirme 4.Studio ihtiyaci 5.Toplam ses butcesi TL. Turkce yaz."},
 {id:"q1",lv:5,nm:"Butce",rl:"Maliyet tablosu",cl:"#dc2626",pr:"Sen finans direktorsun. Konsolide butce: A.Pre-prod B.Cekim C.Post D.Genel yuzde on buffer. TOPLAM NET MALIYET TL. Gercekci rakamlarla yaz."},
-{id:"q2",lv:5,nm:"Fiyatlama",rl:"Ajans kari, marj",cl:"#dc2626",pr:"Sen is gelistirme direktorsun. Net maliyetten fiyat: 1.Ajans ucreti yuzde 15-20 2.Kreatif bedel 3.Risk payi 4.Ekonomik Standart Premium paket secenekleri 5.Odeme plani. TL yaz."},
+{id:"q2",lv:5,nm:"Fiyatlama",rl:"Ajans kari, marj",cl:"#dc2626",pr:"Sen is gelistirme direktorsun. Net maliyetten fiyat: 1.Ajans ucreti yuzde 15-20 2.Kreatif bedel 3.Risk payi 4.Ekonomik Standart Premium paketler 5.Odeme plani. TL yaz."},
 {id:"q3",lv:5,nm:"Teklif Belgesi",rl:"Musteri teklifi",cl:"#dc2626",pr:"Sen genel mudursun. Profesyonel musteri teklifi: 1.PROJE OZETI 2.KREATIF YAKLASIM 3.PRODUKSIYON KAPSAMI 4.TESLIMAT LISTESI 5.PROJE TAKVIMI 6.BUTCE OZETI uc secenek 7.ODEME KOSULLARI 8.NOTLAR. Turkce yaz."}
 ];
 var LC={0:"#c9a84c",1:"#7c3aed",2:"#d97706",3:"#16a34a",4:"#2563eb",5:"#dc2626"};
@@ -72,11 +73,7 @@ function ss(u){Object.assign(st,u);rd();}
 async function ca(ag,ctx){
   ss({act:ag.id});
   try{
-    var msg="Senaryo:
-"+st.sc+(ctx?"
-
-Onceki:
-"+ctx:"");
+    var msg="Senaryo:"+NL+st.sc+(ctx?NL+NL+"Onceki:"+NL+ctx:"");
     var r=await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:MDL,max_tokens:1000,system:ag.pr,messages:[{role:"user",content:msg}]})});
     var d=await r.json();
     var t=(d.content||[]).map(function(c){return c.text||"";}).join("")||"Yanit alinamadi.";
@@ -89,10 +86,7 @@ async function runAll(){
   var ctx="";
   for(var i=0;i<AG.length;i++){
     var a=AG[i];var r=await ca(a,ctx);
-    ctx+="
-
-["+a.nm+"]:
-"+r;
+    ctx+=NL+NL+"["+a.nm+"]:"+NL+r;
     ss({prg:Math.round((i+1)/AG.length*100)});
   }
   ss({act:null,run:false});
